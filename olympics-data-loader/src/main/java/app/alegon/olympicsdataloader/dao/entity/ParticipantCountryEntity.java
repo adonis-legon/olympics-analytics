@@ -20,13 +20,13 @@ public class ParticipantCountryEntity {
     private String name;
 
     @Column(name = "gold_medals")
-    private String goldMedals;
+    private Integer goldMedals;
 
     @Column(name = "silver_medals")
-    private String silverMedals;
+    private Integer silverMedals;
 
     @Column(name = "bronze_medals")
-    private String bronzeMedals;
+    private Integer bronzeMedals;
 
     @ManyToOne
     @JoinColumn(name = "olympic_event_id")

@@ -10,8 +10,8 @@ CREATE TABLE participant_country (
     id SERIAL PRIMARY KEY,
     rank INTEGER,
     name VARCHAR(255),
-    gold_medals VARCHAR(255),
-    silver_medals VARCHAR(255),
-    bronze_medals VARCHAR(255),
+    gold_medals INTEGER,
+    silver_medals INTEGER,
+    bronze_medals INTEGER,
     olympic_event_id INTEGER REFERENCES olympic_event(id)
 );

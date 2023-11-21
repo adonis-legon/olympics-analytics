@@ -10,9 +10,9 @@ CREATE TABLE participant_country (
     id INT AUTO_INCREMENT PRIMARY KEY,
     rank INT,
     name VARCHAR(255),
-    gold_medals VARCHAR(255),
-    silver_medals VARCHAR(255),
-    bronze_medals VARCHAR(255),
+    gold_medals INT,
+    silver_medals INT,
+    bronze_medals INT,
     olympic_event_id INT,
     FOREIGN KEY (olympic_event_id) REFERENCES olympic_event(id)
 );
