@@ -2,7 +2,8 @@ package app.alegon.olympicsdataloader.domain;
 
 public enum OlympicEventType {
     SUMMER_OLYMPIC("Summer Olympic", 1),
-    PANAMERICAN("Panamerican", 2);
+    PAN_AMERICAN("Pan American", 2),
+    PARA_PAN_AMERICAN("Para Pan American", 3);
 
     private final String value;
 

@@ -1,5 +1,6 @@
 package app.alegon.olympicsdataloader.provider;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import app.alegon.olympicsdataloader.domain.ParticipantCountry;
 import app.alegon.olympicsdataloader.exception.OlympicEventProviderException;
+import app.alegon.olympicsdataloader.exception.WebScraperException;
 import app.alegon.olympicsdataloader.provider.web.scrape.WikipediaWebScraper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +30,7 @@ public abstract class WikipediaOlympicEventProvider implements OlympicEventProvi
         ForkJoinPool eventsProcessingPool = new ForkJoinPool(EVENTS_PARALLEL_PROCESSING);
 
         try {
-            final List<List<Element>> eventsTableRows = removeMainTableHeader(
-                    wikipediaWebScraper.getMainTable(getResource()));
+            final List<List<Element>> eventsTableRows = getEventsTableRows(getResource());
 
             eventsProcessingPool.submit(() -> eventsTableRows.parallelStream().forEach(eventRow -> {
                 String eventMedalsUrl = "missing";
@@ -104,9 +105,10 @@ public abstract class WikipediaOlympicEventProvider implements OlympicEventProvi
         Collections.sort(olympicEvents, (e1, e2) -> e1.getStartDate().compareTo(e2.getStartDate()));
     }
 
-    public abstract List<List<Element>> removeMainTableHeader(List<List<Element>> mainTableRows);
+    protected abstract List<List<Element>> getEventsTableRows(String mainResource)
+            throws IOException, WebScraperException;
 
-    public abstract OlympicEvent getOlympicEvent(List<Element> eventRow) throws OlympicEventProviderException;
+    protected abstract OlympicEvent getOlympicEvent(List<Element> eventRow) throws OlympicEventProviderException;
 
-    public abstract String getMedalsUrl(List<Element> eventRow) throws OlympicEventProviderException;
+    protected abstract String getMedalsUrl(List<Element> eventRow) throws OlympicEventProviderException;
 }

@@ -16,6 +16,7 @@ import app.alegon.olympicsdataloader.business.OlympicEventService;
 import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import app.alegon.olympicsdataloader.domain.OlympicEventType;
 import app.alegon.olympicsdataloader.domain.ParticipantCountry;
+import app.alegon.olympicsdataloader.provider.WikipediaParapanAmericanEventProvider;
 import app.alegon.olympicsdataloader.provider.WikipediaSummerOlympicEventProvider;
 
 @ActiveProfiles("test")
@@ -28,11 +29,14 @@ class OlympicsDataLoaderApplicationTests {
 	@Autowired
 	private WikipediaSummerOlympicEventProvider wikipediaSummerOlympicEventProvider;
 
+	@Autowired
+	private WikipediaParapanAmericanEventProvider wikipediaParaPanamericanEventProvider;
+
 	@Test
-	void onTheFirstPanamGamesTheWinnerAndHostMustBeTheSame() {
+	void onTheFirstPanAmericanGamesTheWinnerAndHostMustBeTheSame() {
 		List<ParticipantCountry> participantCountries = new ArrayList<>();
 
-		OlympicEvent panamericanGames = new OlympicEvent(OlympicEventType.PANAMERICAN, "Argentina",
+		OlympicEvent panamericanGames = new OlympicEvent(OlympicEventType.PAN_AMERICAN, "Argentina",
 				LocalDate.of(1951, 2, 5), LocalDate.of(1951, 3, 9), null);
 
 		participantCountries.add(new ParticipantCountry(2, "United States of America", 46, 34, 21, panamericanGames));
@@ -46,13 +50,18 @@ class OlympicsDataLoaderApplicationTests {
 	}
 
 	@Test
-	void whenLoadingPanamericanEventsFromResourcesOnConfigItShouldWork() {
-		assertDoesNotThrow(() -> olympicEventService.loadEvents("Panamerican Games"));
+	void whenLoadingPanAmericanEventsFromResourcesOnConfigItShouldWork() {
+		assertDoesNotThrow(() -> olympicEventService.loadEvents("Pan American Games"));
 	}
 
 	@Test
 	void whenLoadingSummerOlympicEventsFromResourcesOnConfigItShouldWork() {
 		assertDoesNotThrow(() -> olympicEventService.loadEvents("Summer Olympic Games"));
+	}
+
+	@Test
+	void whenLoadingParapanAmericanEventsFromResourcesOnConfigItShouldWork() {
+		assertDoesNotThrow(() -> olympicEventService.loadEvents("Parapan American Games"));
 	}
 
 	@Test
@@ -68,12 +77,25 @@ class OlympicsDataLoaderApplicationTests {
 	}
 
 	@Test
+	void whenWikipediaParaPanAmericanEventDateFormatParseShouldBeCorrect() {
+		List<String> eventDatesFormat1 = wikipediaParaPanamericanEventProvider.getOlympicEventDates("4–11 November",
+				"1999");
+		assertTrue(eventDatesFormat1.get(0).equalsIgnoreCase("November 4, 1999")
+				&& eventDatesFormat1.get(1).equalsIgnoreCase("November 11, 1999"));
+
+		List<String> eventDatesFormat2 = wikipediaParaPanamericanEventProvider
+				.getOlympicEventDates("23 August – 1 September", "2019");
+		assertTrue(eventDatesFormat2.get(0).equalsIgnoreCase("August 23, 2019")
+				&& eventDatesFormat2.get(1).equalsIgnoreCase("September 1, 2019"));
+	}
+
+	@Test
 	void whenStoringOlympicEventsItShouldWork() {
 		List<OlympicEvent> olympicEvents = new ArrayList<>();
 
-		olympicEvents.add(new OlympicEvent(OlympicEventType.PANAMERICAN, "Santiago", LocalDate.of(2023, 10, 20),
+		olympicEvents.add(new OlympicEvent(OlympicEventType.PAN_AMERICAN, "Santiago", LocalDate.of(2023, 10, 20),
 				LocalDate.of(2023, 11, 5), null));
-		olympicEvents.add(new OlympicEvent(OlympicEventType.PANAMERICAN, "Buenos Aires", LocalDate.of(1951, 2, 25),
+		olympicEvents.add(new OlympicEvent(OlympicEventType.PAN_AMERICAN, "Buenos Aires", LocalDate.of(1951, 2, 25),
 				LocalDate.of(1951, 3, 9), null));
 
 		assertDoesNotThrow(() -> olympicEventService.storeEvents(olympicEvents));
@@ -85,7 +107,7 @@ class OlympicsDataLoaderApplicationTests {
 
 		List<ParticipantCountry> participantCountries = new ArrayList<>();
 
-		OlympicEvent panamericanGames = new OlympicEvent(OlympicEventType.PANAMERICAN, "Argentina",
+		OlympicEvent panamericanGames = new OlympicEvent(OlympicEventType.PAN_AMERICAN, "Argentina",
 				LocalDate.of(1951, 2, 5), LocalDate.of(1951, 3, 9), null);
 
 		participantCountries.add(new ParticipantCountry(2, "United States of America", 46, 34, 21, panamericanGames));

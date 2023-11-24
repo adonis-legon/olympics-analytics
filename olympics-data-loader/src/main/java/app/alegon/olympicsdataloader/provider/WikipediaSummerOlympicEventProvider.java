@@ -1,5 +1,6 @@
 package app.alegon.olympicsdataloader.provider;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import app.alegon.olympicsdataloader.domain.OlympicEventType;
 import app.alegon.olympicsdataloader.exception.OlympicEventProviderException;
+import app.alegon.olympicsdataloader.exception.WebScraperException;
 
 @Component
 public class WikipediaSummerOlympicEventProvider extends WikipediaOlympicEventProvider {
@@ -29,7 +31,7 @@ public class WikipediaSummerOlympicEventProvider extends WikipediaOlympicEventPr
     }
 
     @Override
-    public OlympicEvent getOlympicEvent(List<Element> eventRow) throws OlympicEventProviderException {
+    protected OlympicEvent getOlympicEvent(List<Element> eventRow) throws OlympicEventProviderException {
         if (eventRow.size() < 4) {
             throw new OlympicEventProviderException("Invalid Olympic event data. Less that 4 cell on row.", null);
         }
@@ -69,13 +71,13 @@ public class WikipediaSummerOlympicEventProvider extends WikipediaOlympicEventPr
     }
 
     @Override
-    public String getMedalsUrl(List<Element> eventRow) throws OlympicEventProviderException {
+    protected String getMedalsUrl(List<Element> eventRow) throws OlympicEventProviderException {
         Element medalsElement = eventRow.get(1).select("a").first();
         if (medalsElement == null) {
-            throw new OlympicEventProviderException("Missing medals element,", null);
+            throw new OlympicEventProviderException("Missing medals element.", null);
         }
 
-        return wikipediaWebScraper.getEventMedalsUrl(getResource(), medalsElement.attr("href"));
+        return getResource().substring(0, getResource().indexOf("/", 8)) + medalsElement.attr("href") + "_medal_table";
     }
 
     public List<String> getOlympicEventDates(String wikipediaOlympicEventDate) {
@@ -99,7 +101,8 @@ public class WikipediaSummerOlympicEventProvider extends WikipediaOlympicEventPr
     }
 
     @Override
-    public List<List<Element>> removeMainTableHeader(List<List<Element>> mainTableRows) {
-        return mainTableRows.subList(2, mainTableRows.size());
+    protected List<List<Element>> getEventsTableRows(String mainResource) throws IOException, WebScraperException {
+        List<List<Element>> wikiTableRows = wikipediaWebScraper.getWikiTableRows(mainResource, -1);
+        return wikiTableRows.subList(2, wikiTableRows.size());
     }
 }

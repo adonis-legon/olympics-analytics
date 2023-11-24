@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import app.alegon.olympicsdataloader.exception.OlympicEventProviderException;
@@ -16,10 +17,12 @@ import app.alegon.olympicsdataloader.exception.WebScraperException;
 
 @Component
 public class WikipediaWebScraper {
-    public List<List<Element>> getMainTable(String mainUrl) throws IOException, WebScraperException {
+    public List<List<Element>> getWikiTableRows(String mainUrl, int tableIndex)
+            throws IOException, WebScraperException {
         Document mainEventDocument = Jsoup.connect(mainUrl).get();
+        Elements allWikiTableElements = mainEventDocument.getElementsByClass("wikitable");
 
-        Element wikiTableElement = mainEventDocument.getElementsByClass("wikitable").last();
+        Element wikiTableElement = tableIndex >= 0 ? allWikiTableElements.get(tableIndex) : allWikiTableElements.last();
         if (wikiTableElement == null) {
             throw new WebScraperException("Missing wikitable element", null);
         }
@@ -32,8 +35,8 @@ public class WikipediaWebScraper {
         return mainTable;
     }
 
-    public String getEventMedalsUrl(String mainUrl, String eventUrl) {
-        return mainUrl.substring(0, mainUrl.indexOf("/", 8)) + eventUrl + "_medal_table";
+    public List<List<Element>> getWikiTableRows(String mainUrl) throws IOException, WebScraperException {
+        return getWikiTableRows(mainUrl, -1);
     }
 
     public List<List<Element>> getMedalsTable(String eventMedalsUrl, boolean skipTableHeader, boolean skipTableFooter)
