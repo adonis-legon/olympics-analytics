@@ -16,8 +16,7 @@ import app.alegon.olympicsdataloader.business.OlympicEventService;
 import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import app.alegon.olympicsdataloader.domain.OlympicEventType;
 import app.alegon.olympicsdataloader.domain.ParticipantCountry;
-import app.alegon.olympicsdataloader.provider.WikipediaParapanAmericanEventProvider;
-import app.alegon.olympicsdataloader.provider.WikipediaSummerOlympicEventProvider;
+import app.alegon.olympicsdataloader.provider.web.scrape.WikipediaWebScraper;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -27,10 +26,7 @@ class OlympicsDataLoaderApplicationTests {
 	private OlympicEventService olympicEventService;
 
 	@Autowired
-	private WikipediaSummerOlympicEventProvider wikipediaSummerOlympicEventProvider;
-
-	@Autowired
-	private WikipediaParapanAmericanEventProvider wikipediaParaPanamericanEventProvider;
+	private WikipediaWebScraper wikipediaWebScraper;
 
 	@Test
 	void onTheFirstPanAmericanGamesTheWinnerAndHostMustBeTheSame() {
@@ -65,28 +61,29 @@ class OlympicsDataLoaderApplicationTests {
 	}
 
 	@Test
-	void whenWikipediaOlympicEventDateFormatParseShouldBeCorrect() {
-		List<String> eventDatesFormat1 = wikipediaSummerOlympicEventProvider.getOlympicEventDates("12–21 June 1896");
-		assertTrue(eventDatesFormat1.get(0).equalsIgnoreCase("June 12, 1896")
-				&& eventDatesFormat1.get(1).equalsIgnoreCase("June 21, 1896"));
-
-		List<String> eventDatesFormat2 = wikipediaSummerOlympicEventProvider
-				.getOlympicEventDates("1 June - 1 July 1900");
-		assertTrue(eventDatesFormat2.get(0).equalsIgnoreCase("June 1, 1900")
-				&& eventDatesFormat2.get(1).equalsIgnoreCase("July 1, 1900"));
+	void whenLoadingSummerParalympicEventsFromResourcesOnConfigItShouldWork() {
+		assertDoesNotThrow(() -> olympicEventService.loadEvents("Summer Paralympic Games"));
 	}
 
 	@Test
-	void whenWikipediaParaPanAmericanEventDateFormatParseShouldBeCorrect() {
-		List<String> eventDatesFormat1 = wikipediaParaPanamericanEventProvider.getOlympicEventDates("4–11 November",
-				"1999");
-		assertTrue(eventDatesFormat1.get(0).equalsIgnoreCase("November 4, 1999")
-				&& eventDatesFormat1.get(1).equalsIgnoreCase("November 11, 1999"));
+	void whenWikipediaOlympicEventDateFormatsParsedItShouldBeCorrect() {
+		List<String> eventDatesFormat1 = wikipediaWebScraper.getEventDates("12–21 June 1896");
+		assertTrue(eventDatesFormat1.get(0).equalsIgnoreCase("June 12, 1896")
+				&& eventDatesFormat1.get(1).equalsIgnoreCase("June 21, 1896"));
 
-		List<String> eventDatesFormat2 = wikipediaParaPanamericanEventProvider
-				.getOlympicEventDates("23 August – 1 September", "2019");
-		assertTrue(eventDatesFormat2.get(0).equalsIgnoreCase("August 23, 2019")
-				&& eventDatesFormat2.get(1).equalsIgnoreCase("September 1, 2019"));
+		List<String> eventDatesFormat2 = wikipediaWebScraper
+				.getEventDates("1 June - 1 July 1900");
+		assertTrue(eventDatesFormat2.get(0).equalsIgnoreCase("June 1, 1900")
+				&& eventDatesFormat2.get(1).equalsIgnoreCase("July 1, 1900"));
+
+		List<String> eventDatesFormat3 = wikipediaWebScraper.getEventDates("4–11 November", "1999");
+		assertTrue(eventDatesFormat3.get(0).equalsIgnoreCase("November 4, 1999")
+				&& eventDatesFormat3.get(1).equalsIgnoreCase("November 11, 1999"));
+
+		List<String> eventDatesFormat4 = wikipediaWebScraper
+				.getEventDates("23 August – 1 September", "2019");
+		assertTrue(eventDatesFormat4.get(0).equalsIgnoreCase("August 23, 2019")
+				&& eventDatesFormat4.get(1).equalsIgnoreCase("September 1, 2019"));
 	}
 
 	@Test

@@ -70,4 +70,33 @@ public class WikipediaWebScraper {
 
         return medalCount.substring(0, pos);
     }
+
+    public List<String> getEventDates(String eventDateWithYear) {
+        String[] dateParts = eventDateWithYear.split(" ");
+        String year = dateParts[dateParts.length - 1];
+
+        return getEventDatesFromDateParts(dateParts, year);
+    }
+
+    public List<String> getEventDates(String eventDateWithoutYear, String year) {
+        String[] dateParts = eventDateWithoutYear.split(" ");
+        return getEventDatesFromDateParts(dateParts, year);
+    }
+
+    private List<String> getEventDatesFromDateParts(String[] dateParts, String year) {
+        String startDate = "";
+        String endDate = "";
+
+        // detect start and end days in same month format
+        if (dateParts[0].indexOf("–", 0) > 0) {
+            String[] days = dateParts[0].split("–");
+            startDate = dateParts[1] + " " + days[0] + ", " + year;
+            endDate = dateParts[1] + " " + days[1] + ", " + year;
+        } else {
+            startDate = dateParts[1] + " " + dateParts[0] + ", " + year;
+            endDate = dateParts[4] + " " + dateParts[3] + ", " + year;
+        }
+
+        return Arrays.asList(startDate, endDate);
+    }
 }

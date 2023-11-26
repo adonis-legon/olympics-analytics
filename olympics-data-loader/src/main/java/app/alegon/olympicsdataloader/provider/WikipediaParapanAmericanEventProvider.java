@@ -3,7 +3,6 @@ package app.alegon.olympicsdataloader.provider;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,7 +40,7 @@ public class WikipediaParapanAmericanEventProvider extends WikipediaOlympicEvent
 
         String eventDatesStr = eventRow.get(5).text();
 
-        List<String> eventDates = getOlympicEventDates(eventDatesStr, eventYear);
+        List<String> eventDates = wikipediaWebScraper.getEventDates(eventDatesStr, eventYear);
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, u", Locale.ENGLISH);
         LocalDate eventStartDate = LocalDate.parse(eventDates.get(0), dateFormatter);
         LocalDate eventEndDate = LocalDate.parse(eventDates.get(1), dateFormatter);
@@ -64,24 +63,4 @@ public class WikipediaParapanAmericanEventProvider extends WikipediaOlympicEvent
         List<List<Element>> wikiTableRows = wikipediaWebScraper.getWikiTableRows(mainResource, 0);
         return wikiTableRows.subList(1, wikiTableRows.size());
     }
-
-    public List<String> getOlympicEventDates(String wikipediaOlympicEventDate, String year) {
-        String[] dateParts = wikipediaOlympicEventDate.split(" ");
-
-        String startDate = "";
-        String endDate = "";
-
-        // detect date/month format
-        if (dateParts[0].indexOf("–", 0) > 0) {
-            String[] days = dateParts[0].split("–");
-            startDate = dateParts[1] + " " + days[0] + ", " + year;
-            endDate = dateParts[1] + " " + days[1] + ", " + year;
-        } else {
-            startDate = dateParts[1] + " " + dateParts[0] + ", " + year;
-            endDate = dateParts[4] + " " + dateParts[3] + ", " + year;
-        }
-
-        return Arrays.asList(startDate, endDate);
-    }
-
 }
