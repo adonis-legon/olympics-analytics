@@ -29,8 +29,6 @@ public class WikipediaParapanAmericanEventProvider extends WikipediaOlympicEvent
 
     @Override
     protected OlympicEvent getOlympicEvent(List<Element> eventRow) throws OlympicEventProviderException {
-        String eventYear = eventRow.get(1).text().trim();
-
         Element eventHosElement = eventRow.get(3).select("a").first();
         if (eventHosElement == null) {
             throw new OlympicEventProviderException("Missing event host name element.", null);
@@ -40,7 +38,7 @@ public class WikipediaParapanAmericanEventProvider extends WikipediaOlympicEvent
 
         String eventDatesStr = eventRow.get(5).text();
 
-        List<String> eventDates = wikipediaWebScraper.getEventDates(eventDatesStr, eventYear);
+        List<String> eventDates = wikipediaWebScraper.getEventDates(eventDatesStr);
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, u", Locale.ENGLISH);
         LocalDate eventStartDate = LocalDate.parse(eventDates.get(0), dateFormatter);
         LocalDate eventEndDate = LocalDate.parse(eventDates.get(1), dateFormatter);
