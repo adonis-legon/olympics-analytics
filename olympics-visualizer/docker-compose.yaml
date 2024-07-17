@@ -10,7 +10,7 @@ services:
     ports:
       - "8088:8088"
     environment:
-      - DOCKER_DEFAULT_PLATFORM=linux/amd64
+      - DOCKER_DEFAULT_PLATFORM=linux/arm64
     volumes:
       - superset_db:/opt/superset/db
 
