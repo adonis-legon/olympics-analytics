@@ -91,6 +91,9 @@ public class OlympicEventService {
 
             if (storedParticipantCountryEntities.size() == 0) {
                 participantCountryEntitiesToStore.add(participantCountryEntity);
+            } else {
+                participantCountryEntity.setId(storedParticipantCountryEntities.get(0).getId());
+                participantCountryRepository.save(participantCountryEntity);
             }
         }
 
