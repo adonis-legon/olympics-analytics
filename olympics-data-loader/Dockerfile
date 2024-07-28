@@ -25,4 +25,4 @@ COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 # Starts java app from the entrypoint
-ENTRYPOINT ["java", "-cp", "app:app/lib/*", "app.alegon.olympicsdataloader.OlympicsDataLoaderApplication"]
+ENTRYPOINT ["java", "-Duser.timezone=America/Santiago", "-cp", "app:app/lib/*", "app.alegon.olympicsdataloader.OlympicsDataLoaderApplication"]
