@@ -1,10 +1,9 @@
-package app.alegon.olympicsdataloader;
+package app.alegon.olympicsdataloader.task;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import app.alegon.olympicsdataloader.business.OlympicEventService;
@@ -13,17 +12,16 @@ import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Profile("!test")
 @Component
-public class OlympicsDataLoaderExecutor implements CommandLineRunner {
+public class OlympicsDataLoaderTask {
     @Autowired
     private OlympicEventService olympicEventService;
 
     @Autowired
     private OlympicEventApplicationConfig olympicEventApplicationConfig;
 
-    @Override
-    public void run(String... args) throws Exception {
+    @Scheduled(cron = "${app.event-loader.schedule}")
+    public void loadEvents() {
         try {
             for (String olympicEventType : olympicEventApplicationConfig.getOlympicEvents()) {
                 log.info("Processing Olympic event type: " + olympicEventType + "...");
@@ -38,5 +36,4 @@ public class OlympicsDataLoaderExecutor implements CommandLineRunner {
             log.error("Error in Olympic data loader application. Message: " + e.getMessage(), e);
         }
     }
-
 }

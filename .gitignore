@@ -34,3 +34,5 @@ build/
 *.env
 .venv
 !template.env
+
+logs
