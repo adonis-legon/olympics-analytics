@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "app.event-loader.schedule",
+    "type": "java.lang.String",
+    "description": "Cron expression that represents the schedule of the events loader process"
+  },
+  {
+    "name": "app.event-loader.concurrency",
+    "type": "java.lang.String",
+    "description": "Concurrency level of the events loader process for each olympic event"
+  }
+]}

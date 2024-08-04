@@ -9,6 +9,7 @@ import java.util.concurrent.ForkJoinPool;
 import org.jsoup.HttpStatusException;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import app.alegon.olympicsdataloader.domain.OlympicEvent;
 import app.alegon.olympicsdataloader.domain.ParticipantCountry;
@@ -19,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class WikipediaOlympicEventProvider implements OlympicEventProvider {
-    private final int EVENTS_PARALLEL_PROCESSING = 4;
+    @Value("${app.event-loader.concurrency:4}")
+    private int eventsProcessConcurrency;
 
     @Autowired
     protected WikipediaWebScraper wikipediaWebScraper;
@@ -27,7 +29,7 @@ public abstract class WikipediaOlympicEventProvider implements OlympicEventProvi
     @Override
     public List<OlympicEvent> buildEvents() throws OlympicEventProviderException {
         List<OlympicEvent> olympicEvents = new ArrayList<>();
-        ForkJoinPool eventsProcessingPool = new ForkJoinPool(EVENTS_PARALLEL_PROCESSING);
+        ForkJoinPool eventsProcessingPool = new ForkJoinPool(eventsProcessConcurrency);
 
         try {
             final List<List<Element>> eventsTableRows = getEventsTableRows(getResource());
@@ -48,30 +50,37 @@ public abstract class WikipediaOlympicEventProvider implements OlympicEventProvi
 
                     int currentRank = 1;
                     for (List<Element> participantCountryRow : medalsTableRows) {
-                        int participantRank = currentRank;
-                        int dataOffset = 1;
+                        try {
+                            int participantRank = currentRank;
+                            int dataOffset = 1;
 
-                        if (participantCountryRow.size() == 6) {
-                            participantRank = Integer.parseInt(participantCountryRow.get(0).text());
+                            if (participantCountryRow.size() == 6) {
+                                dataOffset = 0;
+                                participantRank = Integer.parseInt(participantCountryRow.get(0).text());
+                            }
+
+                            Element participantCountryElement = participantCountryRow.get(1 - dataOffset).select("a")
+                                    .first();
+                            if (participantCountryElement == null) {
+                                throw new OlympicEventProviderException("Missing participant country element.", null);
+                            }
+                            String participantCountryName = participantCountryElement.text();
+                            int participantGoldMedals = Integer.parseInt(wikipediaWebScraper
+                                    .sanitizeMedalCount(participantCountryRow.get(2 - dataOffset).text()));
+                            int participantSilverMedals = Integer.parseInt(wikipediaWebScraper
+                                    .sanitizeMedalCount(participantCountryRow.get(3 - dataOffset).text()));
+                            int participantBronzeMedals = Integer.parseInt(wikipediaWebScraper
+                                    .sanitizeMedalCount(participantCountryRow.get(4 - dataOffset).text()));
+
+                            participantCountries.add(new ParticipantCountry(participantRank, participantCountryName,
+                                    participantGoldMedals, participantSilverMedals, participantBronzeMedals,
+                                    olympicEvent));
+
                             currentRank = participantRank;
-                            dataOffset = 0;
+                        } catch (Exception e) {
+                            log.error(String.format("Error scraping event page: %s, with participant data: %s",
+                                    eventMedalsUrl, participantCountryRow.toString()), e);
                         }
-
-                        Element participantCountryElement = participantCountryRow.get(1 - dataOffset).select("a")
-                                .first();
-                        if (participantCountryElement == null) {
-                            throw new OlympicEventProviderException("Missing participant country element.", null);
-                        }
-                        String participantCountryName = participantCountryElement.text();
-                        int participantGoldMedals = Integer.parseInt(wikipediaWebScraper
-                                .sanitizeMedalCount(participantCountryRow.get(2 - dataOffset).text()));
-                        int participantSilverMedals = Integer.parseInt(wikipediaWebScraper
-                                .sanitizeMedalCount(participantCountryRow.get(3 - dataOffset).text()));
-                        int participantBronzeMedals = Integer.parseInt(wikipediaWebScraper
-                                .sanitizeMedalCount(participantCountryRow.get(4 - dataOffset).text()));
-
-                        participantCountries.add(new ParticipantCountry(participantRank, participantCountryName,
-                                participantGoldMedals, participantSilverMedals, participantBronzeMedals, olympicEvent));
                     }
 
                     olympicEvent.setParticipantCountries(participantCountries);
