@@ -1,6 +1,6 @@
 package app.alegon.olympicsdataloader.dao.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.Data;
 

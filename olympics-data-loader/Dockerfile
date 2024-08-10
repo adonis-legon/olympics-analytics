@@ -1,5 +1,5 @@
 # Use maven to compile the java application.
-FROM docker.io/maven:3.8.1-jdk-11-slim AS build
+FROM docker.io/maven:3.9.8-amazoncorretto-21 AS build
 
 # Set the working directory to /app
 WORKDIR /workspace/app
@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 # Build runtime image.
-FROM openjdk:11-jre-slim-buster
+FROM azul/zulu-openjdk:21-jre
 
 VOLUME /tmp
 
