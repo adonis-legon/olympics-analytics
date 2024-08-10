@@ -103,7 +103,7 @@ public abstract class WikipediaOlympicEventProvider implements OlympicEventProvi
             throw new OlympicEventProviderException(
                     "Error scraping resource: " + getResource() + ". Message: " + e.getMessage(), e);
         } finally {
-            eventsProcessingPool.shutdown();
+            eventsProcessingPool.close();
         }
 
         sortEvents(olympicEvents);
