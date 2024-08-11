@@ -128,15 +128,13 @@
 			</scope>
 		</dependency>
 		<dependency>
-			<groupId>
-				in.hocg.boot
-			</groupId>
-			<artifactId>
-				flyway-spring-boot-starter
-			</artifactId>
-			<version>
-				1.0.57
-			</version>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>10.17.0</version>
 		</dependency>
 		<dependency>
 			<groupId>
